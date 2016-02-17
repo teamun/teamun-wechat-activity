@@ -1,0 +1,41 @@
+<div class="custom-game-wrap-02">
+    <!-- 计时器 -->
+    <div class="custom-counter">
+        <div class="custom-counter-wrap">
+            <span class="custom-counter-01">{{ss}}</span> <span class="custom-counter-02">{{ms}}</span>
+        </div>
+    </div>
+    <!-- /计时器 -->
+    <!-- ready go -->
+    <div class="custom-ready-go" id="custom-ready-go"></div>
+    <!-- /ready go -->
+    <!-- 鼓 -->
+    <div class="custom-drum" id="dustom-drum-default" ng-touchstart="onTouchstartLeft($event)" ng-touchend="onTouchendLeft($event)" ng-click="climb();">
+        <a href="#"><img src="images/drum.png" class="img-responsive" /></a>
+    </div>
+    <div class="custom-drum-active" id="dustom-drum-active" style="display:none;">
+        <a href="#"><img src="images/drum-active.png" class="img-responsive" /></a>
+    </div>
+    <div class="custom-drum-2" id="dustom-drum-default-2" ng-touchstart="onTouchstartRight($event)" ng-touchend="onTouchendRight($event)" ng-click="climb();">
+        <a href="#"><img src="images/drum-2.png" class="img-responsive" /></a>
+    </div>
+    <div class="custom-drum-active-2" id="dustom-drum-active-2" style="display:none;">
+        <a href="#"><img src="images/drum-active-2.png" class="img-responsive" /></a>
+    </div>
+    <!-- /鼓 -->
+    <!-- 头像 -->
+    <div class="custom-avatar" id="custom-avatar" style="bottom:19%; left:38%;">
+        <a href="#"><img src="{{headimgurl}}" class="img-responsive img-circle" /></a>
+    </div>
+    <!-- /头像 -->
+    <div class="custom-content-02-bg">
+        <a href="#"><img src="images/content-02.jpg" class="img-responsive" /></a>
+    </div>
+    <!-- 弹出层 -->
+    <div class="modal top am-fade modal-backdrop am-fade" tabindex="-1" role="dialog" style="display: block;">
+        <div class="modal-dialog">
+            <a href="javascript:viod();"><img src="images/tip.png" class="img-responsive" ng-click="ready();"/></a>
+        </div>
+    </div>
+    <!-- /弹出层 -->
+</div>

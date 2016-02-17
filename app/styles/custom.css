@@ -1,0 +1,494 @@
+
+
+body{
+	background: #f5f5f5;
+} 
+
+.img-thumbnail{
+	width: 60px;
+	height: 50px;
+}
+
+.form-control {
+    padding: 0 12px;
+}
+
+a {
+  color: #3abdc8;
+  text-decoration: none;
+}
+
+.text-primary {
+  color: #3abdc8;
+}
+
+.bg-primary {
+  color: #fff;
+  background-color: #3abdc8;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #3abdc8;
+  border-color: #3abdc8;
+}
+
+.btn-primary.disabled,
+.btn-primary[disabled],
+fieldset[disabled] .btn-primary,
+.btn-primary.disabled:hover,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary:hover,
+.btn-primary.disabled:focus,
+.btn-primary[disabled]:focus,
+fieldset[disabled] .btn-primary:focus,
+.btn-primary.disabled:active,
+.btn-primary[disabled]:active,
+fieldset[disabled] .btn-primary:active,
+.btn-primary.disabled.active,
+.btn-primary[disabled].active,
+fieldset[disabled] .btn-primary.active {
+  background-color: #3abdc8;
+  border-color: #3abdc8;
+}
+.btn-primary .badge {
+  color: #3abdc8;
+  background-color: #fff;
+}
+
+.btn-link {
+  font-weight: normal;
+  color: #3abdc8;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus {
+  color: #fff;
+  text-decoration: none;
+  background-color: #3abdc8;
+  outline: 0;
+}
+
+.nav .open > a,
+.nav .open > a:hover,
+.nav .open > a:focus {
+  background-color: #eee;
+  border-color: #3abdc8;
+}
+
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+  color: #fff;
+  background-color: #3abdc8;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+  position: relative;
+  float: left;
+  padding: 6px 12px;
+  margin-left: -1px;
+  line-height: 1.42857143;
+  color: #3abdc8;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+  z-index: 2;
+  color: #fff;
+  cursor: default;
+  background-color: #3abdc8;
+  border-color: #3abdc8;
+}
+
+.label-primary {
+  background-color: #3abdc8;
+}
+
+a.list-group-item.active > .badge,
+.nav-pills > .active > a > .badge {
+  color: #3abdc8;
+  background-color: #fff;
+}
+
+a.thumbnail:hover,
+a.thumbnail:focus,
+a.thumbnail.active {
+  border-color: #3abdc8;
+}
+
+a.text-primary:hover {
+  color: #36afba;
+}
+
+a.bg-primary:hover {
+  background-color: #36afba;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.open > .dropdown-toggle.btn-primary {
+  color: #fff;
+  background-color: #36afba;
+  border-color: #36afba;
+}
+
+.label-primary[href]:hover,
+.label-primary[href]:focus {
+  background-color: #36afba;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.custom-smaller{
+	font-size: 0.8em
+}
+.custom-padding-left-none{
+	padding-left:0;
+}
+.custom-padding-right-none{
+	padding-right:0;
+}
+.custom-padding-top-none{
+	padding-top:0;
+}
+.custom-grey{
+	color: #aaa;
+}
+.custom-green{
+	color: #3bc2cd;
+}
+.custom-black{
+	color: #000;
+}
+.custom-red{
+	color: #e94242;
+}
+.custom-blue{
+	color: #419edf;
+}
+.custom-margin-top{
+	margin-top: 15px;
+}
+.custom-margin-top-01{
+	margin-top: 0.5em;
+}
+.custom-input-01{
+	padding-top: 1.5em;
+	padding-bottom: 1.5em;
+}
+.custom-input-02{
+	border: none;
+	padding: 0;
+	height: auto;
+	box-shadow: none;
+}
+.custom-padding-top-01{
+	padding-top: 0.2em;
+}
+.custom-padding-bottom-01{
+	padding-bottom: 0.2em;
+}
+.custom-padding-bottom-02{
+	padding-bottom: 15px;
+}
+.custom-padding-top-02{
+	padding-top: 0.5em;
+}
+.custom-padding-top-03{
+	padding-top: 1em;
+}
+.custom-padding-top-04{
+	padding-top: 0.7em;
+}
+.custom-padding-top-05{
+	padding-top: 0.8em;
+}
+.custom-btn-mini{
+	padding: 0 15px;
+}
+.btn-large{
+	padding: 11px 12px;
+}
+.custom-btn-grey{
+	background: #bbb;
+	border: #bbb 1px solid;
+}
+.custom-btn-red{
+	background: #e94242;
+	border: #e94242 1px solid;
+}
+.custom-img{
+	width: 70%;
+}
+.custom-input{
+	width: 100%;
+	font-size: 0.8em;
+	padding: 0;
+	margin: 0;
+	background: #fff;
+	margin-bottom: 3px;
+	height: 24px;
+	text-align: center;
+}
+
+
+/*custom-event-list*/
+.custom-event-list{
+	background: #fff;
+	margin-top: 0.5em;
+	border-top:#ddd 1px solid;
+	border-bottom:#ddd 1px solid;
+}
+.custom-event-list-content{ 
+	color: #aaa;
+	padding-bottom:0.8em;
+}
+
+/*custom-event-add*/
+.custom-event-add-wrap{
+	padding-top: 1em;
+	padding-bottom:1em;
+}
+.custom-padding-left-01{
+	padding-left:8px;
+}
+.custom-padding-right-01{
+	padding-right:8px;
+}
+.custom-add-poster-wrap{
+	padding-left: 8px;
+	padding-right: 8px;
+}
+.custom-event-add-content{
+	background: #fff;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+	padding-left: 30px;
+	padding-right: 30px;
+	border:#ddd 1px solid;
+	margin-left: 15px;
+	margin-right: 15px;
+	margin-top: 15px;
+	border-radius: 6px;
+
+}
+.custom-event-add-content-row-01{
+	border-bottom: #ddd 1px solid; 
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.custom-event-add-content-row-02{
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.custom-event-add-content-title{
+	font-size: 1em;
+	padding-right: none;
+}
+.custom-addr-list li{
+	padding: 10px 15px;
+	border-bottom: #ddd 1px solid;
+	height: 50px;
+}
+.custom-addr-list li .custom-addr-icon{
+	width: 8%;
+	display: block;
+	height: 40px;
+	float: left;
+}
+.custom-addr-list li .custom-addr-icon img{
+	width: 1.3em;
+}
+.custom-addr-list li .custom-addr-title{
+	width: 90%;
+	float: left;
+}
+.custom-addr-list li .custom-addr-content{
+	width: 90%;
+	float: left;
+	font-size: 0.8em;
+	color: #999;
+}
+
+/*custom-event-detail*/
+.custom-event-detail-wrap{
+	background: #fff;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 30px;
+	padding-right: 30px;
+	border-bottom: #ddd 1px solid; 
+}
+.custom-event-detail-row-01{
+	border-bottom: #ddd 1px solid; 
+	border-top: #ddd 1px solid; 
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.custom-event-detail-row-02{
+	border-bottom: #ddd 1px solid; 
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.custom-event-detail-row-03{
+	padding-top: 15px;
+	padding-bottom: 5px;
+}
+.custom-icon-01{
+	width: 10%;
+	margin-top: 0.5em;
+	margin-right:0.1em;
+}
+.custom-event-detail-share-btn .btn{
+	background: #d74f4b;
+	border: #d74f4b 1px solid;
+}
+.custom-carousel{
+	position: relative;
+}
+.custom-carousel .custom-indicator{
+	width: 50%;
+	height: 30px;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	margin-left: -25%;
+	text-align: center;
+	font-size: 20px;
+}
+
+.custom-detail-time-01{
+	width: 52%;
+	float: left;
+}
+
+.custom-detail-time-01 .custom-data{
+	color: #aaa;
+}
+.custom-detail-time-01 .custom-time{
+	color: #aacc32;
+	font-size: 2.15em;
+	position: relative;
+}
+
+.custom-detail-time-02{
+	width: 48%;
+	float: right;
+	text-align: right;
+}
+.custom-detail-time-02 .custom-data{
+	color: #aaa;
+}
+.custom-detail-time-02 .custom-time{
+	color: #e94949;
+	font-size: 2.15em;
+}
+.custom-detail-time-01 .custom-time .custom-middle-line{
+	width: 13px;
+	border-top:#aaa 1px solid; 
+	position: absolute;
+	right: 0;
+	top:3px;
+}
+.custom-icon-02{
+	width: 1em;
+	margin-right:0.1em;
+}
+.custom-nowrap{
+	white-space:nowrap;
+}
+
+/**
+ * 隐藏默认的checkbox
+ */
+input[type=checkbox] {
+	visibility: hidden;
+}
+/**
+ * Checkbox Four
+ */
+.checkboxFour {
+	width: 16px;/*
+	margin: 20px 100px;*/
+	position: relative;
+}
+/**
+ * Create the box for the checkbox
+ */
+.checkboxFour label {
+	cursor: pointer;
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 0;
+  	left: 0;
+	background: #eee;
+	border:1px solid #999;
+}
+/**
+ * Display the tick inside the checkbox
+ */
+.checkboxFour label:after {
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 9px;
+	height: 5px;
+	background: transparent;
+	top: 3px;
+	left: 3px;
+	border: 3px solid #36afba;
+	border-top: none;
+	border-right: none;
+ 
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}
+/**
+ * Create the hover event of the tick
+ */
+.checkboxFour label:hover::after {
+	opacity: 0;
+}
+ 
+/**
+ * Create the checkbox state for the tick
+ */
+.checkboxFour input[type=checkbox]:checked + label:after {
+	opacity: 1;
+}

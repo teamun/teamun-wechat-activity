@@ -1,0 +1,183 @@
+<script type="text/javascript">
+$(document).ready(function() {
+    var href = document.location.href.split('#')[0];
+    var params = href.split('/');
+    var meter = 0;
+    if(params[8] == 72) {
+        meter = 8848;
+    } else {
+        meter = (params[8] * 100);
+    }
+    $.get("/api/wechats/sign?url=" + encodeURIComponent(href), function(result) {
+        wx.config({
+            debug: false,
+            appId: result.signpackage.appId,
+            timestamp: result.signpackage.timestamp,
+            nonceStr: result.signpackage.nonceStr,
+            signature: result.signpackage.signature,
+            jsApiList: [
+                'onMenuShareAppMessage',
+                'onMenuShareTimeline',
+                'onMenuShareQQ'
+            ]
+        });
+
+        wx.ready(function() {
+            $.get("http://api.teamun.com/v1.0.3/wechat-game-shares?unionid=" + document.location.href.split('/')[4], function(result) {
+                wx.onMenuShareAppMessage({
+                    title: '登高大作战，我的手速秒杀朋友圈，不服来战！',
+                    desc: params[9]+ '秒狂登' + meter + '米，排名' + result.data.ranknum + '。就是这么逆天！',
+                    link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1f2eb0abac2cea04&redirect_uri=http://2016nymf.teamun.com/climb-game-start&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect',
+                    imgUrl: 'http://7xoe4j.com2.z0.glb.qiniucdn.com/400(1).jpg',
+                    trigger: function(res) {
+                        // 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+                        //alert('用户点击发送给朋友');
+                    },
+                    success: function(res) {
+                        //alert('已分享');
+                    },
+                    cancel: function(res) {
+                        //alert('已取消');
+                    },
+                    fail: function(res) {
+                        //alert(JSON.stringify(res));
+                    }
+                });
+
+                wx.onMenuShareTimeline({
+                    title: '登高大作战，我的手速秒杀朋友圈，不服来战！',
+                    link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1f2eb0abac2cea04&redirect_uri=http://2016nymf.teamun.com/climb-game-start&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect',
+                    imgUrl: 'http://7xoe4j.com2.z0.glb.qiniucdn.com/400(1).jpg',
+                    trigger: function(res) {
+                        // 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+                        //alert('用户点击分享到朋友圈');
+                    },
+                    success: function(res) {
+                        //alert('已分享');
+                    },
+                    cancel: function(res) {
+                        //alert('已取消');
+                    },
+                    fail: function(res) {
+                        //alert(JSON.stringify(res));
+                    }
+                });
+
+                wx.onMenuShareQQ({
+                    title: '登高大作战，我的手速秒杀朋友圈，不服来战！',
+                    desc: params[9]+ '秒狂登' + meter + '米，排名' + result.data.ranknum + '。就是这么逆天！',
+                    link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1f2eb0abac2cea04&redirect_uri=http://2016nymf.teamun.com/climb-game-start&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect',
+                    imgUrl: 'http://7xoe4j.com2.z0.glb.qiniucdn.com/400(1).jpg',
+                    trigger: function(res) {
+                        //alert('用户点击分享到QQ');
+                    },
+                    complete: function(res) {
+                        //alert(JSON.stringify(res));
+                    },
+                    success: function(res) {
+                        //alert('已分享');
+                    },
+                    cancel: function(res) {
+                        //alert('已取消');
+                    },
+                    fail: function(res) {
+                        //alert(JSON.stringify(res));
+                    }
+                });
+
+            });
+        });
+
+        wx.error(function(res) {
+            window.location.reload();
+        });
+
+    });
+
+    if (window.localStorage) {
+        if (localStorage.getItem("signUrl1") == href) {
+            localStorage.removeItem("signUrl1");
+            window.location.reload();
+        } else {
+            if (localStorage.getItem("signUrl") == href) {
+                localStorage.removeItem("signUrl");
+                localStorage.setItem("signUrl1", href);
+                setTimeout("window.location.reload();", 1000);
+            } else {
+                localStorage.setItem("signUrl", href);
+            }
+        }
+    }
+
+});
+</script>
+<div class="custom-game-wrap-03">
+    <div class="custom-game-result-content">
+        <!-- 头像 -->
+        <div class="custom-avatar-result">
+            <a href="#"><img src="{{headimgurl}}" class="img-responsive img-circle" /></a>
+        </div>
+        <!-- /头像 -->
+        <div class="custom-game-result-content-2">
+            <h1>{{nickname}}</h1>
+            <h2>登高 {{meter == 72 ? 8848 : meter * 100}}米 | 用时{{time}}秒</h2>
+            <h3>综合排名：{{rank.result.ranknum}}</h3>
+            <div class="custom-result-title"><img src="{{'images/result-title' + rank.result.ranktitle + '.png'}}" style="width:30%;" /></div>
+        </div>
+        <div class="custom-game-result-content-3" style="display:none;" id="showAward">
+            <h1>{{rank.result.rankdesc}}</h1>
+            <div class="custom-award">
+                <img src="{{rank.lottery.thumb_pic}}" class="img-responsive" />
+                <div class="custom-award-name">{{rank.lottery.title}}</div>
+                <div class="custom-award-btn">
+                    <a href="#" data-toggle="modal" data-target="#followWechat"><img src="images/get-award.png" /></a>
+                </div>
+            </div>
+        </div>
+        <div class="custom-game-result-content-3" style="display:none;" id="getAward">
+            <h1>{{rank.result.rankdesc}}</h1>
+            <div class="custom-award">
+                <img src="images/gift.gif" class="img-responsive" />
+                <div class="custom-award-name"></div>
+                <div class="custom-award-btn2">
+                    <a href="#" data-toggle="modal" data-target="#mobileModal"><img src="images/get-award.png" /></a>
+                </div>
+            </div>
+        </div>
+        <div class="custom-game-result-content-4" style="display:none;" id="noAward">
+            <h1>{{rank.result.rankdesc}}</h1>
+        </div>
+        <div class="custom-result-share-btn">
+            <a ui-sref="climb-game-climbing({ unionid: unionid, nickname: nickname, headimgurl: headimgurl, sex: sex, city: city })"><img src="images/restart.png" /></a>
+            <a href="#" data-toggle="modal" data-target="#shareModal"><img src="images/share.png" /></a>
+        </div>
+    </div>
+    <div class="custom-content-02-bg">
+        <a href="#"><img src="images/content-03.jpg" class="img-responsive" /></a>
+    </div>
+    <!-- 弹出层 分享 -->
+    <div class="modal fade bs-example-modal-lg" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog2 modal-lg">
+            <a href="javascript:void()" data-dismiss="modal"><img src="images/share-img.png" class="img-responsive" /></a>
+        </div>
+    </div>
+    <!-- /弹出层 -->
+    <!-- 弹出层 输入手机号码 -->
+    <div class="modal fade bs-example-modal-lg" id="mobileModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div>
+            <div class="custom-popup">
+                <h4>领取奖品：</h4>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="请输入手机号码..." id="registerMobile">
+                </div>
+                <button type="button" class="btn btn-warning" ng-click="register();">确认</button>
+            </div>
+        </div>
+    </div>
+    <!-- /弹出层 -->
+    <!-- 弹出层 QRCODE -->
+    <div class="modal fade bs-example-modal-lg" id="followWechat" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <img src="images/myaward.png" style="width: 100%; display: block; margin-top: 20%;" />
+    </div>
+    <!-- /弹出层 -->
+</div>

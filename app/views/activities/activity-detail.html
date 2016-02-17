@@ -1,0 +1,239 @@
+<script type="text/javascript">
+$(document).ready(function() {
+    var href = document.location.href.split('#')[0];
+    $.get("/api/wechats/sign?url=" + encodeURIComponent(href), function(result) {
+
+        wx.config({
+            debug: false,
+            appId: result.signpackage.appId,
+            timestamp: result.signpackage.timestamp,
+            nonceStr: result.signpackage.nonceStr,
+            signature: result.signpackage.signature,
+            jsApiList: [
+                'checkJsApi',
+                'openLocation',
+                'onMenuShareAppMessage',
+                'onMenuShareTimeline', 
+                'onMenuShareQQ'
+            ]
+        });
+
+
+        wx.ready(function() {
+
+            wx.checkJsApi({
+                jsApiList: [
+                    'getLocation'
+                ],
+                success: function(res) {
+                    // alert(JSON.stringify(res));
+                    // alert(JSON.stringify(res.checkResult.getLocation));
+                    if (res.checkResult.getLocation == false) {
+                        alert('你的微信版本太低，不支持微信JS接口，请升级到最新的微信版本！');
+                        return;
+                    }
+                }
+            });
+
+            document.querySelector('#viewMap').onclick = function() {
+                var activityId = document.location.href.split('/')[4];
+                $.get("/api/wechats/activities/detail/" + activityId, function(result) {
+                    var lat = result.activity.latitude;
+                    var lng = result.activity.longitude;
+                    var loc = result.activity.location;
+                    var addr = result.activity.address;
+                    wx.openLocation({
+                        latitude: lat, // 纬度，浮点数，范围为90 ~ -90
+                        longitude: lng, // 经度，浮点数，范围为180 ~ -180。
+                        name: loc, // 位置名
+                        address: addr, //详细地址
+                        scale: 16, // 地图缩放级别,整形值,范围从1~28。默认为最大
+                        infoUrl: 'http://www.teamun.com' // 在查看位置界面底部显示的更多信息,可点击跳转
+                    });
+                });
+            };
+            $.get("/api/wechats/activities/detail/" + document.location.href.split('/')[4], function(result) {
+                wx.onMenuShareAppMessage({
+                    title: result.activity.name,
+                    desc: result.activity.desc,
+                    link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1f2eb0abac2cea04&redirect_uri=http://wechat-activity.teamun.com/activity-detail/' + result.activity._id + '&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect',
+                    imgUrl: result.activity.posters[0],
+                    trigger: function(res) {
+                        // 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+                        //alert('用户点击发送给朋友');
+                    },
+                    success: function(res) {
+                        //alert('已分享');
+                    },
+                    cancel: function(res) {
+                        //alert('已取消');
+                    },
+                    fail: function(res) {
+                        //alert(JSON.stringify(res));
+                    }
+                });
+
+                wx.onMenuShareTimeline({
+                    title: result.activity.name,
+                    link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1f2eb0abac2cea04&redirect_uri=http://wechat-activity.teamun.com/activity-detail/' + result.activity._id + '&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect',
+                    imgUrl: result.activity.posters[0],
+                    trigger: function (res) {
+                        // 不要尝试在trigger中使用ajax异步请求修改本次分享的内容，因为客户端分享操作是一个同步操作，这时候使用ajax的回包会还没有返回
+                        //alert('用户点击分享到朋友圈');
+                    },
+                    success: function (res) {
+                        //alert('已分享');
+                    },
+                    cancel: function (res) {
+                        //alert('已取消');
+                    },
+                    fail: function (res) {
+                        //alert(JSON.stringify(res));
+                    }
+                });
+
+                wx.onMenuShareQQ({
+                    title: result.activity.name,
+                    desc: result.activity.desc,
+                    link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1f2eb0abac2cea04&redirect_uri=http://wechat-activity.teamun.com/activity-detail/' + result.activity._id + '&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect',
+                    imgUrl: result.activity.posters[0],
+                    trigger: function (res) {
+                        //alert('用户点击分享到QQ');
+                    },
+                    complete: function (res) {
+                        //alert(JSON.stringify(res));
+                    },
+                    success: function (res) {
+                        //alert('已分享');
+                    },
+                    cancel: function (res) {
+                        //alert('已取消');
+                    },
+                    fail: function (res) {
+                        //alert(JSON.stringify(res));
+                    }
+                });
+
+            });
+        });
+
+        wx.error(function(res) {
+            window.location.reload();
+        });
+
+    });
+
+});
+</script>
+<div class="custom-carousel">
+    <ul rn-carousel rn-carousel-index="postersIndex" rn-carousel-auto-slide rn-carousel-transition="slide" class="image" style="height:230px; margin-bottom:0;">
+        <li ng-repeat="image in activity.posters" style="position:relative;">
+            <!-- <img ng-src="{{image}}" style="width:100%; position:absolute; top:50%; margin-top:-200px;" /> -->
+            <img ng-src="{{image}}?imageView2/1/w/800/h/600" style="width:100%;" />
+        </li>
+    </ul>
+    <div class="rn-carousel-indicator custom-indicator text-center">
+        <span ng-repeat="slide in activity.posters" ng-class="{active: $index==$parent.postersIndex}" ng-click="$parent.postersIndex = $index">●</span>
+    </div>
+</div>
+<div class="container-fluid custom-event-detail-wrap">
+    <div class="row custom-padding-bottom-01">
+        <!-- <div class="col-xs-1 custom-padding-top-01 custom-padding-left-none custom-padding-right-none"><img src="{{activity.event.logo}}" class="img-responsive" /></div> -->
+        <div class="col-xs-10">
+            <h4><strong>{{activity.name}}</strong></h4></div>
+    </div>
+    <div class="row custom-event-detail-row-01">
+        <div class="col-xs-1 custom-padding-left-none custom-padding-right-01">
+            <img src="images/icon-04.png" class="img-responsive" />
+        </div>
+        <div class="col-xs-3 custom-padding-left-none custom-event-add-content-title">
+            活动时间
+        </div>
+        <div class="col-xs-8 custom-padding-left-none ">
+            <div class="custom-detail-time-01">
+                <div class="custom-data">{{activity.startTime | date: 'yyyy-MM-dd'}}</div>
+                <div class="custom-time">{{activity.startTime | date: 'HH:mm'}}
+                    <div class="custom-middle-line"></div>
+                </div>
+            </div>
+            <div class="custom-detail-time-02">
+                <div class="custom-data">{{activity.endTime | date: 'yyyy-MM-dd'}}</div>
+                <div class="custom-time">{{activity.endTime | date: 'HH:mm'}}</div>
+            </div>
+        </div>
+        <!-- /new style -->
+    </div>
+    <div class="row custom-event-detail-row-02">
+        <div class="col-xs-1 custom-padding-left-none custom-padding-right-01">
+            <img src="images/icon-01.png" class="img-responsive" />
+        </div>
+        <div class="col-xs-3 custom-padding-left-none custom-event-add-content-title">
+            活动地点
+        </div>
+        <div class="col-xs-8 custom-padding-left-none" id="openLocation">
+            <span id="viewMap" class="custom-green">{{activity.location}}</span>
+        </div>
+    </div>
+    <div class="row custom-event-detail-row-02">
+        <div class="col-xs-1 custom-padding-left-none custom-padding-right-01">
+            <img src="images/icon-05.png" class="img-responsive" />
+        </div>
+        <div class="col-xs-3 custom-padding-left-none custom-event-add-content-title">
+            报名人数
+        </div>
+        <div class="col-xs-8 custom-padding-left-none">
+            <span class="custom-grey">{{joinRecords.length}}人想去</span>
+        </div>
+        <div class="clearfix visible-xs-block"></div>
+        <div class="col-xs-1">&nbsp;</div>
+        <div class="col-xs-10 custom-padding-left-none">
+            <img ng-repeat="record in joinRecords" src="{{record.headimgurl}}" class="custom-icon-01 img-circle" />
+        </div>
+    </div>
+    <div class="row custom-event-detail-row-03">
+        <div class="col-xs-1 custom-padding-left-none custom-padding-right-01">
+            <img src="images/icon-03.png" class="img-responsive" />
+        </div>
+        <div class="col-xs-11 custom-padding-left-none custom-event-add-content-title">
+            活动描述
+        </div>
+        <div class="col-xs-12 custom-padding-left-none custom-padding-right-none custom-margin-top-01 custom-grey">
+            {{activity.desc}}
+        </div>
+    </div>
+</div>
+<div class="container-fluid custom-margin-top">
+    <!-- <div ng-show="isStart" class="col-xs-6 custom-padding-left-none custom-padding-right-01">
+        <a href="#" class="btn btn-large btn-block btn-default" disabled="disabled">已开始</a>
+    </div>
+    <div ng-show="isComplete" class="col-xs-6 custom-padding-left-none custom-padding-right-01">
+        <a href="#" class="btn btn-large btn-block btn-default" disabled="disabled">已结束</a>
+    </div> -->
+
+    <div ng-show="!isCreator">
+        <div ng-show="!isJoin" class="col-xs-6 custom-padding-left-none custom-padding-right-01">
+            <a href="#" class="btn btn-large btn-block btn-primary" ng-click="join(activity, userinfo);">我要参加</a>
+        </div>
+        <div ng-show="isJoin" class="col-xs-6 custom-padding-left-01 custom-padding-right-none custom-event-detail-share-btn">
+            <a href="#" class="btn btn-large btn-block btn-primary" ng-click="quit(activity, userinfo);">不想去了</a>
+        </div>
+        <div class="col-xs-6 custom-padding-left-01 custom-padding-right-none custom-event-detail-share-btn">
+            <a href="#" class="btn btn-large btn-block btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">分享</a>
+        </div>
+    </div>
+    <div ng-show="isCreator">
+        <div class="col-xs-12 custom-padding-left-01 custom-padding-right-none custom-event-detail-share-btn">
+            <a href="#" class="btn btn-large btn-block btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">分享</a>
+        </div>
+    </div>
+</div>
+<div class="container-fluid custom-margin-top custom-padding-bottom-02">
+    <div class="col-xs-12 custom-padding-left-none custom-padding-right-none">
+        <img src="images/wechat-ad-img.png" class="img-responsive" />
+    </div>
+</div>
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg">
+        <a href="javascript:void()" data-dismiss="modal"><img src="images/share-img.png" class="img-responsive" /></a>
+    </div>
+</div>

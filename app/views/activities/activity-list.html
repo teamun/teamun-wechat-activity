@@ -1,0 +1,195 @@
+<script type="text/javascript">
+// $(document).ready(function() {
+//     var href = document.location.href.split('#')[0];
+//     $.get("/api/wechats/sign?url=" + encodeURIComponent(href), function(result) {
+
+//         wx.config({
+//             debug: false,
+//             appId: result.signpackage.appId,
+//             timestamp: result.signpackage.timestamp,
+//             nonceStr: result.signpackage.nonceStr,
+//             signature: result.signpackage.signature,
+//             jsApiList: [
+//                 'checkJsApi',
+//                 'openLocation',
+//                 'getLocation'
+//             ]
+//         });
+
+
+//         wx.ready(function() {
+
+//             wx.checkJsApi({
+//                 jsApiList: [
+//                     'getLocation'
+//                 ],
+//                 success: function(res) {
+//                     // alert(JSON.stringify(res));
+//                     // alert(JSON.stringify(res.checkResult.getLocation));
+//                     if (res.checkResult.getLocation == false) {
+//                         alert('你的微信版本太低，不支持微信JS接口，请升级到最新的微信版本！');
+//                         return;
+//                     }
+//                 }
+//             });
+
+//             wx.getLocation({
+//                 success: function(res) {
+//                     var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+//                     var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+//                     var speed = res.speed; // 速度，以米/每秒计
+//                     var accuracy = res.accuracy; // 位置精度
+
+//                     calculateDistance(latitude, longitude);
+//                 },
+//                 cancel: function(res) {
+//                     alert('用户拒绝授权获取地理位置');
+//                 }
+//             });
+
+//         });
+
+//         wx.error(function(res) {
+//             window.location.reload();
+//         });
+
+//     });
+    
+// });
+
+// var lat = 0;
+// var lng = 0;
+// //GPS定位当前用户位置
+// window.onload = function() {
+//     navigator.geolocation.getCurrentPosition(generateOnlineUserLatLng);
+// }
+
+// function calculateDistance(poi) {
+// poi.coords.latitude, poi.coords.longitude
+// function calculateDistance(lat, lng) {
+//     qq.maps.convertor.translate(new qq.maps.LatLng(lat, lng), 1, function(res) {
+//         var start = new qq.maps.LatLng(res[0].lat, res[0].lng);
+//         var distances = document.getElementsByName("distance");
+
+//         for (var i = 0; i < distances.length; i++) {
+//             var end = new qq.maps.LatLng($(distances[i]).attr("data-lat"), $(distances[i]).attr("data-lng"));
+//             try {
+//                 var distanceValue = Math.round(qq.maps.geometry.spherical.computeDistanceBetween(start, end) / 100) / 10;
+//             } catch (e) {
+//                 distances[i].innerHTML = "火星";
+//                 return;
+//             }
+//             distances[i].innerHTML = distanceValue + "km";
+//         }
+//     });
+// }
+
+var lat = 0;
+var lng = 0;
+//GPS定位当前用户位置
+window.onload = function() {
+    navigator.geolocation.getCurrentPosition(generateOnlineUserLatLng);
+    //calculateDistance();
+}
+
+function generateOnlineUserLatLng(poi) {
+    qq.maps.convertor.translate(new qq.maps.LatLng(poi.coords.latitude, poi.coords.longitude), 1, function(res) {
+        lat = res[0].lat;
+        lng = res[0].lng;
+        calculateDistance();
+    });
+}
+
+function calculateDistance() {
+    var start = new qq.maps.LatLng(lat, lng);
+    var distances = document.getElementsByName("distance");
+
+    for (var i = 0; i < distances.length; i++) {
+        var end = new qq.maps.LatLng($(distances[i]).attr("data-lat"), $(distances[i]).attr("data-lng"));
+        try {
+            var distanceValue = Math.round(qq.maps.geometry.spherical.computeDistanceBetween(start, end) / 100) / 10;
+        } catch(e) {
+            distances[i].innerHTML = "火星";
+            return;
+        }
+        distances[i].innerHTML = distanceValue + "km";
+    }
+}
+</script>
+<div ng-show="!manageFlag">
+    <span id='ct' style="background-color: #FFFF00"></span>
+    <div class="custom-margin-top" ng-repeat="item in activityList">
+        <div class="container-fluid custom-event-list" ui-sref="activity-detail({activity_id: item.activity._id})">
+            <div class="row">
+                <!-- <div class="col-xs-2 custom-padding-top-04"><img src="{{item.event.logo}}" class="img-responsive" /></div> -->
+                <div class="col-xs-11 custom-padding-top-none"><h4><strong>{{item.activity.name}}</strong></h4></div>
+            </div>
+            <div class="row custom-event-list-content">
+                <div class="col-xs-3 custom-padding-right-none">
+                    <img class="img-responsive img-rounded" src="{{item.activity.posters[0]}}?imageView2/1/w/105/h/85">
+                </div>
+                <div class="col-xs-9">
+                <img src="images/icon-04.png" class="custom-icon-02" />
+                    开始时间:{{item.activity.startTime | date: 'yyyy-MM-dd HH:mm'}} &nbsp;<span class="custom-nowrap">( 报名人数:{{item.activity.joinRecord.length}} )</span><br/>
+                <img src="images/icon-01.png" class="custom-icon-02" />
+                    {{item.activity.location}}
+                    <span name="distance" data-lat="{{item.activity.latitude}}" data-lng="{{item.activity.longitude}}" class="custom-nowrap">定位中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="activityList.length > 0" class="container-fluid custom-margin-top custom-padding-bottom-02">
+        <a href="#" class="btn btn-large btn-block btn-primary" ng-click="manage(true);">管理</a>
+    </div>
+    <div ng-show="activityList.length == 0" class="container-fluid custom-margin-top custom-padding-bottom-02">
+        你还没有参加任何活动。
+    </div>
+
+</div>
+
+<div ng-show="manageFlag">
+    <div class="custom-margin-top" ng-repeat="item in activityList">
+        <div class="container-fluid custom-event-list" ng-click="check('checkboxFourInput{{$index}}', item._id)">
+            <div class="row">
+                <div class="col-xs-1 custom-padding-top-05">
+
+                    <div class="checkboxFour">
+                        <input type="checkbox" checklist-model="myactivities" checklist-value="item._id" id="checkboxFourInput{{$index}}" />
+                        <label for="checkboxFourInput{{$index}}"></label>
+                    </div></div>
+                <!-- <div class="col-xs-2 custom-padding-top-04"><img src="{{item.event.logo}}" class="img-responsive" /></div> -->
+                <div class="col-xs-10 custom-padding-top-none">
+                    <h4><strong>{{item.activity.name}}</strong></h4></div>
+            </div>
+            <div class="row custom-event-list-content">
+                <!-- <div class="col-xs-1 custom-padding-top-01">
+                    <div class="checkboxFour">
+                        <input type="checkbox" checklist-model="myactivities" checklist-value="item._id" id="checkboxFourInput{{$index}}" />
+                        <label for="checkboxFourInput{{$index}}"></label>
+                    </div>
+                </div> -->
+
+                <div class="col-xs-3 custom-padding-right-none">
+                    <img class="img-responsive img-rounded" src="{{item.activity.posters[0]}}?imageView2/1/w/105/h/85">
+                </div>
+
+                <div class="col-xs-9">
+                <img src="images/icon-04.png" class="custom-icon-02" />
+                    开始时间:{{item.activity.startTime | date: 'yyyy-MM-dd HH:mm'}} &nbsp;<span  class="custom-nowrap">( 报名人数:{{item.activity.joinRecord.length}} )</span><br/>
+                <img src="images/icon-01.png" class="custom-icon-02" />
+                    {{item.activity.location}}
+                    <span name="distance" data-lat="{{item.activity.latitude}}" data-lng="{{item.activity.longitude}}" class="custom-nowrap">定位中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid custom-margin-top custom-padding-bottom-02">
+        <div class="col-xs-6 custom-padding-left-none custom-padding-right-01">
+            <a href="#" class="btn btn-large btn-block btn-primary custom-btn-grey" ng-click="manage(false);">取消</a>
+        </div>
+        <div class="col-xs-6 custom-padding-left-01 custom-padding-right-none">
+            <a href="#" class="btn btn-large btn-block btn-primary custom-btn-red" ng-click="remove(myactivities, openid);">删除</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,477 @@
+<script type="text/javascript">
+$(document).ready(function() {
+    var href = document.location.href.split('#')[0];
+    $.get("/api/wechats/sign?url=" + encodeURIComponent(href), function(result) {
+
+        wx.config({
+            debug: false,
+            appId: result.signpackage.appId,
+            timestamp: result.signpackage.timestamp,
+            nonceStr: result.signpackage.nonceStr,
+            signature: result.signpackage.signature,
+            jsApiList: [
+                'checkJsApi',
+                'openLocation',
+                'getLocation',
+                'chooseImage',
+                'uploadImage'
+            ]
+        });
+
+
+        wx.ready(function() {
+
+            wx.checkJsApi({
+                jsApiList: [
+                    'getLocation'
+                ],
+                success: function(res) {
+                    // alert(JSON.stringify(res));
+                    // alert(JSON.stringify(res.checkResult.getLocation));
+                    if (res.checkResult.getLocation == false) {
+                        alert('你的微信版本太低，不支持微信JS接口，请升级到最新的微信版本！');
+                        return;
+                    }
+                }
+            });
+
+            wx.getLocation({
+                success: function(res) {
+                    var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                    var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                    var speed = res.speed; // 速度，以米/每秒计
+                    var accuracy = res.accuracy; // 位置精度
+
+                    showPosition(latitude, longitude);
+                },
+                cancel: function(res) {
+                    alert('用户拒绝授权获取地理位置');
+                }
+            });
+
+            $('#chooseImage').on('click', function () {
+                wx.chooseImage({
+                    count: 4,
+                    success: function (res) {
+                        var localIds = res.localIds;
+
+                        var waituploadimg = document.getElementsByName("waituploadimg");
+
+                        if((localIds.length + waituploadimg.length) > 4) {
+                            alert("最多只能上传4张图片");
+                            return;
+                        } else {
+                            if((localIds.length + waituploadimg.length) == 4) {
+                                $('#chooseImagediv').hide();
+                            }
+                            jQuery(function(){
+                                $.each(res.localIds, function(i, n){
+                                    if(i == 3) {
+                                        $('#chooseImagediv').hide();
+                                    }
+                                    $("#preview").prepend('<div class="col-xs-3 custom-padding-left-01 custom-padding-right-01"><a href="#"><img src="' + n + '" class="img-responsive img-rounded img-thumbnail" /></a></div>');
+                                });
+                            });
+                            syncUpload(localIds);
+                        }
+                    }
+                });
+            });
+
+            var syncUpload = function(localIds){
+                var localId = localIds.pop();
+                wx.uploadImage({
+                    localId: localId,
+                    isShowProgressTips: 1,
+                    success: function (res) {
+                        var serverId = res.serverId;
+                        $("#waitupload").append('<input name="waituploadimg" value="' + serverId + '" /> <br />');
+                        if(localIds.length > 0){
+                            syncUpload(localIds);
+                        }
+                    }
+                });
+            };
+
+        });
+
+        wx.error(function(res) {
+            window.location.reload();
+        });
+
+    });
+
+});
+
+// function init() {
+//     if (navigator.geolocation) {
+//         navigator.geolocation.getCurrentPosition(showPosition);
+//     } else {
+//         x.innerHTML = "浏览器不支持定位.";
+//     }
+// }
+
+var map;
+
+// function showPosition(position) {
+    function showPosition(lat, lng) {
+    // var lat = position.coords.latitude;
+    // var lng = position.coords.longitude;
+    qq.maps.convertor.translate(new qq.maps.LatLng(lat, lng), 1, function(res) {
+        latlng = res[0];
+
+        map = new qq.maps.Map(document.getElementById("container"), {
+            zoomControl: false,
+            center: latlng,
+            zoom: 13
+        });
+        var marker = new qq.maps.Marker({
+            map: map,
+            position: latlng
+        });
+
+        var customDiv = document.createElement("a");
+        customDiv.innerHTML = '<img src="images/position.png" class="custom-img" />';
+
+        qq.maps.event.addListener(customDiv, 'click', function() {
+            map.panTo(latlng);
+            pointToAddress(map);
+        });
+        map.controls[qq.maps.ControlPosition.LEFT_BOTTOM].push(customDiv);
+
+        //中心标记控件
+        var middleControl = document.createElement("div");
+        middleControl.style.left = document.body.scrollWidth / 2 - 15 + 'px';
+        middleControl.style.top = "114px";
+        middleControl.style.position = "relative";
+        middleControl.style.width = "36px";
+        middleControl.style.height = "36px";
+        middleControl.style.zIndex = "100000";
+        middleControl.innerHTML = '<img src="images/location-01.png" class="custom-img" />';
+        document.getElementById("container").appendChild(middleControl);
+
+        var listener = qq.maps.event.addListener(map, 'dragend', function(event) {
+            document.getElementById("place").blur();
+            pointToAddress(map);
+        });
+    });
+
+    var citylocation = new qq.maps.CityService({
+        complete: function(result) {
+            areaName = result.detail.name;
+        }
+    });
+
+    //获取当前用户城市信息
+    citylocation.searchLocalCity();
+
+    var internal;
+    searchWord = "";
+    searchWord.trim()
+    document.getElementById('place').onfocus = function() {
+        $("#makeLocation").html("确定");
+        pointToAddress(map);
+        internal = setInterval(function() {
+            var newWord = document.getElementById('place').value;
+            if (typeof(newWord) != "undefined") {
+                newWord = clearStringSpace(newWord);
+                if (newWord.length > 0 && searchWord != newWord) {
+                    searchWord = newWord;
+                    searchService.setLocation(areaName);
+                    document.getElementById("container").style.display = "none";
+                    document.getElementById("moveResult").style.display = "none";
+                    document.getElementById("searchResult").style.display = "block";
+                    document.getElementById("searchResult").innerHTML = "加载中......";
+                    searchService.search(searchWord);
+                } else if (newWord.trim().length == 0) {
+                    document.getElementById("searchResult").innerHTML = "";
+                    document.getElementById("container").style.display = "block";
+                    document.getElementById("moveResult").style.display = "block";
+                }
+            }
+        }, 500);
+    }
+    document.getElementById('place').onblur = function() {
+        clearInterval(internal);
+    }
+
+    var searchService = new qq.maps.SearchService({
+        complete: function(results) {
+            var points = results.detail.pois;
+            var itemHtml = "";
+            if (typeof(points) != "undefined" && points.length > 0) {
+                for (var i = 0; i < points.length; i++) {
+                    itemHtml += showSearchResult(points[i].name, points[i].address, points[i].latLng.lat, points[i].latLng.lng, "none", true);
+                }
+                itemHtml += "<div class='createCustomLocation' onclick='showCreateCustomLocation();'><h6>不是你想要的位置？</h6><h6>指定地图上的点：" + searchWord + "</h6></div> ";
+                var remainHeight = window.screen.height - 120;
+                document.getElementById("searchResult").style.height = remainHeight + "px";
+                document.getElementById("searchResult").style.overflow = "hidden";
+                document.getElementById("searchResult").style.overflowY = "scroll";
+                document.getElementById("searchResult").innerHTML = itemHtml;
+                if (itemHtml != "") {
+                    document.getElementById("searchResult").style.display = "block";
+                }
+            }
+        },
+        pageCapacity: 15,
+        error: function(e) {
+            //console.log(e.toString());
+            var itemHtml = "<div class='createCustomLocation' onclick='showCreateCustomLocation();'><h6>没有找到你想要的位置？</h6><h6>指定地图上的点：" + searchWord + "</h6></div> ";
+            document.getElementById("searchResult").style.display = "block";
+            document.getElementById("searchResult").innerHTML = itemHtml;
+        }
+    });
+
+}
+
+function confirmItem(name, address, lat, lng, e, rePoint) {
+    $("#makeLocation").html("确定");
+    document.getElementById("container").style.display = "block";
+    document.getElementById("moveResult").style.display = "block";
+    document.getElementById("searchResult").style.display = "none";
+    //document.getElementById("location").value = name;
+    //document.getElementById("address").value = address;
+    var items = document.getElementsByClassName("searchResultItem");
+    for (var i = 0; i < items.length; i++) {
+        items[i].previousSibling.style.display = "none";
+    }
+
+    if (typeof(e) != "undefined" && e != null) {
+        e.previousSibling.style.display = "block";
+    }
+    $("#lat").val(lat).trigger('change');
+    $("#lng").val(lng).trigger('change');
+    $("#location").val(name).trigger('change');
+    $("#address").val(address).trigger('change');
+
+    map.panTo(new qq.maps.LatLng(lat, lng));
+    if (rePoint) {
+        pointToAddress(map);
+    }
+    searchWord = name;
+    document.getElementById('place').value = name;
+    document.getElementById('place').blur();
+}
+
+function pointToAddress(map) {
+    var remainHeight = window.screen.height - 120;
+    var url = "http://apis.map.qq.com/ws/geocoder/v1/?location=" + map.getCenter() + "&key=MAEBZ-PNH3D-TGD47-PGG5E-Q3MLJ-3KFJ6&get_poi=1&output=jsonp";
+    url = url.replace(/\s/g, "");
+    $.getJSON(url + '&callback=?', function(data) {
+        $("#lat").val(data.result.location.lat).trigger('change');
+        $("#lng").val(data.result.location.lng).trigger('change');
+        $("#location").val(data.result.formatted_addresses.recommend).trigger('change');
+        $("#address").val(data.result.address).trigger('change');
+
+        var html = showSearchResult(data.result.formatted_addresses.recommend, data.result.address, data.result.location.lat, data.result.location.lng, "block");
+        for (var i in data.result.pois) {
+            var item = data.result.pois[i];
+            html += showSearchResult(item.title, item.address, item.location.lat, item.location.lng, "none", false);
+        }
+        document.getElementById("moveResult").style.height = remainHeight + "px";
+        document.getElementById("moveResult").style.overflow = "hidden";
+        document.getElementById("moveResult").style.overflowY = "scroll";
+        document.getElementById("moveResult").innerHTML = html;
+    });
+}
+
+function showSearchResult(name, address, lat, lng, isShow, rePoint) {
+    if (typeof(address != "undefined") && address != "undefined" && address != null) {
+        var template = "<div class='searchResultSelected' style='display: " + isShow + "'></div><li class='searchResultItem' onclick='confirmItem(\"" + name + "\",\"" + address + "\"," + lat + "," + lng + ",this," + rePoint + ");'>" +
+            "<div class='custom-addr-icon'><img src='images/icon-01.png'/></div>" +
+            "<div class='custom-addr-title'>" + name + "</div>" +
+            "<div class='custom-addr-content'>" + address + "</div>" +
+            "</li>";
+        return template;
+    } else {
+        return "";
+    }
+}
+
+function clearStringSpace(str) {
+    var temp = "";
+    var strSplit = str.split("");
+    for (var i in strSplit) {
+        if (strSplit[i] != " ") {
+            temp += strSplit[i].trim();
+        }
+    }
+    return temp;
+}
+
+function setLocation() {
+    document.getElementById("setLocation").style.display = "block";
+    document.getElementById("setInfomation").style.display = "none";
+    document.getElementById("location").blur();
+    pointToAddress(map);
+}
+
+function selectLocation() {
+    document.getElementById("setLocation").style.display = "none";
+    document.getElementById("setInfomation").style.display = "block";
+}
+
+function cancelLocation() {
+    document.getElementById("setLocation").style.display = "none";
+    document.getElementById("setInfomation").style.display = "block";
+}
+
+function clickFileInput() {
+    document.getElementById('poster').click();
+}
+
+// window.onload = function() {
+//     init();
+// };
+
+function setEndTimeDefaultValue(e) {
+    var endTimeInput = document.getElementById("endTime");
+    var endTime = parseDate(e.value);
+
+    endTime.setHours(endTime.getHours() + 2);
+    endTimeInput.value = formatDate(endTime);
+}
+
+function parseDate(timeStr) {
+    timeStr = timeStr.replace("T", " ");
+    do {
+      timeStr = timeStr.replace("-", "/");
+    } while (timeStr.indexOf("-") > -1);
+    return new Date(timeStr);
+};
+
+function formatDate(date) {
+    return date.getFullYear() + "-" + (date.getMonth() < 9 ? "0" : "") + (date.getMonth() + 1) + "-" + (date.getDate() < 10 ? "0" : "") +
+      date.getDate() + "T" + (date.getHours() < 10 ? "0" : "") + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" : "") +
+      date.getMinutes() + ":" + (date.getSeconds() < 10 ? "0" : "") + date.getSeconds();
+};
+
+</script>
+<div class="custom-event-add-wrap">
+    <div id="setLocation" style="display: none;">
+        <div class="searchLine">
+            <div class="container-fluid">
+                <div class="row custom-padding-bottom-02">
+                    <div class="col-xs-2">
+                        <button type="button" onclick="cancelLocation();" id="cancelLocation" class="btn btn-primary btn-large custom-btn-grey">返回</button>
+                    </div>
+                    <div class="col-xs-7" style="margin-left:15px;">
+                        <input class="form-control custom-input-01" type="text" placeholder="请输入活动地点..." id="place" />
+                    </div>
+                    <div class="col-xs-2 custom-padding-left-none">
+                        <button type="button" onclick="selectLocation();" id="makeLocation" class="btn btn-primary btn-large">确定</button>
+                    </div>
+                </div>
+            </div>
+            <div id="placeBorder"></div>
+        </div>
+        <div class="custom-addr-list">
+            <ul class="list-unstyled">
+                <div id="searchResult"></div>
+            </ul>
+        </div>
+        <div id="setLocationByMap">
+            <div id="container" style="height:300px;"></div>
+            <div class="custom-addr-list">
+                <ul class="list-unstyled">
+                    <div id="moveResult"></div>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="setInfomation">
+        <form role="form" ng-submit="saveActivity(activity)">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <input class="form-control custom-input-01" placeholder="请输入活动标题..." ng-model="activity.name" required>
+                    </div>
+                </div>
+                <div id="preview" class="row custom-margin-top custom-add-poster-wrap">
+                    <!-- <div ng-show="posters[0] != null" class="col-xs-3 custom-padding-left-01 custom-padding-right-01">
+                        <a href="#"><img src="{{posters[0]}}?imageView2/1/w/105/h/85" class="img-responsive img-rounded img-thumbnail" /></a>
+                    </div>
+                    <div ng-show="posters[1] != null" class="col-xs-3 custom-padding-left-01 custom-padding-right-01">
+                        <a href="#"><img src="{{posters[1]}}?imageView2/1/w/105/h/85" class="img-responsive img-rounded img-thumbnail" /></a>
+                    </div>
+                    <div ng-show="posters[2] != null" class="col-xs-3 custom-padding-left-01 custom-padding-right-01">
+                        <a href="#"><img src="{{posters[2]}}?imageView2/1/w/105/h/85" class="img-responsive img-rounded img-thumbnail" /></a>
+                    </div>
+                    <div ng-show="posters[3] != null" class="col-xs-3 custom-padding-left-01 custom-padding-right-01">
+                        <a href="#"><img src="{{posters[3]}}?imageView2/1/w/105/h/85" class="img-responsive img-rounded img-thumbnail" /></a>
+                    </div> -->
+                    <!-- <div ng-show="posters.length < 4" class="col-xs-3 custom-padding-left-01 custom-padding-right-01"> -->
+                        <!-- <img class="img-responsive img-rounded img-thumbnail" src="images/event-poster-add.png" onclick="clickFileInput();"> -->
+                        <!-- <input class="hide" type="file" name="poster" id="poster" img-cropper-fileread image="cropper.sourceImage" /> -->
+                        <!-- <img id="chooseImage" class="img-responsive img-rounded img-thumbnail" src="images/event-poster-add.png"> -->
+                        <!-- <button id="chooseImage" type="button" class="btn btn-primary btn-hight"><h2>选择图片</h2></button> -->
+                        <!-- <input class="hide" id="poster" type="file" ngf-select ngf-change="upload($files)" ngf-multiple="true" accept="image/jpg,image/jpeg,image/png,image/gif"> -->
+                    <!-- </div> -->
+                    <div id="chooseImagediv" class="col-xs-3 custom-padding-left-01 custom-padding-right-01">
+                        <img id="chooseImage" class="img-responsive img-rounded img-thumbnail" src="images/event-poster-add.png">
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid custom-event-add-content">
+
+                <div class="row custom-event-add-content-row-01">
+                    <div class="col-xs-1 custom-padding-left-none custom-padding-right-01 custom-padding-top-03">
+                        <img src="images/icon-04.png" class="img-responsive" />
+                    </div>
+                    <div class="col-xs-3 custom-padding-left-none custom-padding-right-none custom-event-add-content-title custom-padding-top-03">
+                        开始时间
+                    </div>
+                    <div class="col-xs-8 custom-padding-left-none custom-padding-right-none">
+                        <input id="startTime" type="datetime-local" class="form-control" ng-model="startTime" onblur="setEndTimeDefaultValue(this);"/>
+                    </div>
+                    <div class="clearfix visible-xs-block"></div>
+                    <div class="col-xs-1 custom-padding-left-none custom-padding-right-01 custom-padding-top-03">
+                        <img src="images/icon-04.png" class="img-responsive" />
+                    </div>
+                    <div class="col-xs-3 custom-padding-left-none custom-padding-right-none custom-event-add-content-title custom-padding-top-03">
+                        结束时间
+                    </div>
+                    <div class="col-xs-8 custom-padding-left-none custom-padding-right-none">
+                        <input id="endTime" type="datetime-local" class="form-control" ng-model="endTime" style="margin-top:5px;" />
+                    </div>
+
+                </div>
+
+                <div class="row custom-event-add-content-row-01">
+                    <div class="col-xs-1 custom-padding-left-none custom-padding-right-01">
+                        <img src="images/icon-01.png" class="img-responsive" />
+                    </div>
+                    <div class="col-xs-3 custom-padding-left-none custom-padding-right-none custom-event-add-content-title">
+                        活动地点
+                    </div>
+                    <div class="col-xs-8 custom-padding-left-none custom-padding-right-none">
+                        <input class="form-control custom-input-02" placeholder="请输入活动地点..." id="location" ng-model="activity.location" onclick="setLocation();" required/>
+                        <div class="map" id="map"></div>
+                    </div>
+                </div>
+                <div class="row custom-event-add-content-row-02">
+                    <div class="col-xs-1 custom-padding-left-none custom-padding-right-01">
+                        <img src="images/icon-03.png" class="img-responsive" />
+                    </div>
+                    <div class="col-xs-11 custom-padding-left-none custom-event-add-content-title">
+                        活动描述
+                    </div>
+                    <div class="col-xs12 custom-padding-left-none custom-padding-right-none custom-margin-top">
+                        <textarea class="form-control" rows="5" placeholder="请输入300字以内的活动描述..." ng-model="activity.desc" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" class="form-control" ng-model="activity.openid" ng-init="activity.openid = openid">
+            <div style="display: none;">
+                <input id="lat" name="latitude" ng-model="activity.latitude" />
+                <input id="lng" name="longitude" ng-model="activity.longitude" />
+                <input id="address" name="address" ng-model="activity.address" />
+            </div>
+            <div id="waitupload" style="display: none;"></div>
+            <div class="container-fluid custom-margin-top">
+                <button type="submit" class="btn btn-large btn-block btn-primary">创建并分享活动</button>
+            </div>
+        </form>
+    </div>
+</div>
